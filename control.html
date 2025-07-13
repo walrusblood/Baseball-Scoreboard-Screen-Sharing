@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Control de Marcador</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f0f0f0; 
+      color: #333; 
+      padding: 20px; 
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-bottom: 25px;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .section h3 {
+      margin-top: 0;
+      color: #34495e;
+    }
+    button {
+      font-size: 1.1em;
+      margin: 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #229954;
+    }
+    .btn-warning {
+      background: #f39c12;
+      color: white;
+    }
+    .btn-warning:hover {
+      background: #e67e22;
+    }
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    .btn-undo {
+      background: #9b59b6;
+      color: white;
+    }
+    .btn-undo:hover {
+      background: #8e44ad;
+    }
+    input, select {
+      font-size: 1.1em;
+      margin: 5px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .counter {
+      display: inline-block;
+      margin: 0 10px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .team-input {
+      width: 200px;
+    }
+    .score-controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .inning-display {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+    .file-upload {
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px dashed #ddd;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .player-select-visitante {
+      background-color: #e3f2fd !important;
+      color: #1976d2 !important;
+      border: 2px solid #1976d2 !important;
+    }
+    .player-select-local {
+      background-color: #f3e5f5 !important;
+      color: #7b1fa2 !important;
+      border: 2px solid #7b1fa2 !important;
+    }
+    .player-option-visitante {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    .player-option-local {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+    .game-status {
+      background: #e8f5e8;
+      border: 2px solid #4caf50;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #2e7d32;
+    }
+    .extra-innings {
+      background: #fff3e0;
+      border: 2px solid #ff9800;
+      color: #f57c00;
+    }
+    .game-over {
+      background: #ffebee;
+      border: 2px solid #f44336;
+      color: #c62828;
+      font-size: 1.4em;
+    }
+    .history-section {
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 10px;
+    }
+    .history-item {
+      padding: 8px;
+      margin: 5px 0;
+      background: white;
+      border-radius: 3px;
+      border-left: 4px solid #007bff;
+      font-size: 0.9em;
+    }
+    .history-item:hover {
+      background: #e9ecef;
+    }
+    .history-time {
+      color: #6c757d;
+      font-size: 0.8em;
+    }
+    .undo-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🏟️ Panel de Control - Marcador de Baseball</h2>
+
+    <div class="section">
+      <h3>Cargar Jugadores</h3>
+      <div class="file-upload">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" />
+        <button onclick="loadPlayersFromFile()" class="btn-primary">Cargar Archivo</button>
+        <p><small>Formatos soportados: CSV, Excel (.xlsx, .xls)</small></p>
+        <p><small>Formato esperado: Equipo, Numero, Nombre</small></p>
+      </div>
+      <div>
+        <strong>Jugadores cargados:</strong> <span id="playersCount">18</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Equipos</h3>
+      <div>
+        <label>Equipo Visitante: </label>
+        <input id="teamA" class="team-input" value="VISITANTE" placeholder="Nombre del equipo visitante">
+      </div>
+      <div style="margin-top: 10px;">
+        <label>Equipo Local: </label>
+        <input id="teamB" class="team-input" value="LOCAL" placeholder="Nombre del equipo local">
+      </div>
+      <button onclick="updateTeams()" class="btn-primary">Actualizar Equipos</button>
+      <button onclick="openMarcador()" class="btn-success">Abrir Marcador</button>
+    </div>
+
+    <!-- Estado del Juego -->
+    <div id="gameStatusSection" class="section">
+      <div id="gameStatus" class="game-status">
+        Juego en Progreso - Inning Regular
+      </div>
+    </div>
+
+    <!-- Historial y Deshacer -->
+    <div class="section">
+      <h3>Historial de Cambios</h3>
+      <div class="undo-controls">
+        <button onclick="undoLastAction()" class="btn-undo" id="undoBtn" disabled>
+          ↶ Deshacer Último Cambio
+        </button>
+        <button onclick="clearHistory()" class="btn-warning">
+          🗑️ Limpiar Historial
+        </button>
+        <span id="historyCount">0 cambios registrados</span>
+      </div>
+      <div id="historyList" class="history-section">
+        <div style="text-align: center; color: #6c757d; padding: 20px;">
+          No hay cambios registrados aún
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Estado del Juego</h3>
+      <div class="inning-display">
+        Inning: <span id="inning">1</span> (<span id="half">Alta</span>)
+      </div>
+      
+      <div class="score-controls">
+        <div>
+          <label>Balls:</label>
+          <button onclick="adjust('balls', -1)" class="btn-warning">-</button>
+          <span id="balls" class="counter">0</span>
+          <button onclick="adjust('balls', 1)" class="btn-success">+</button>
+        </div>
+        
+        <div>
+          <label>Strikes:</label>
+          <button onclick="adjust('strikes', -1)" class="btn-warning">-</button>
+          <span id="strikes" class="counter">0</span>
+          <button onclick="adjust('strikes', 1)" class="btn-success">+</button>
+        </div>
+        
+        <div>
+          <label>Outs:</label>
+          <button onclick="adjust('outs', -1)" class="btn-warning">-</button>
+          <span id="outs" class="counter">0</span>
+          <button onclick="adjust('outs', 1)" class="btn-success">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Acciones de Juego</h3>
+      <button onclick="addRun()" class="btn-success" style="font-size: 1.2em; padding: 10px 20px;">
+        🏃 CARRERA (+1 Punto)
+      </button>
+      <button onclick="homeRun()" class="btn-primary" style="font-size: 1.2em; padding: 10px 20px;">
+        ⚾ HOME RUN (Reset Conteo + Carrera)
+      </button>
+      <button onclick="hit()" class="btn-primary" style="font-size: 1.2em; padding: 10px 20px;">
+        🥎 HIT (Reset Conteo)
+      </button>
+      <button onclick="basePorBola()" class="btn-primary" style="font-size: 1.2em; padding: 10px 20px;">
+        🚶 BASE x BOLA (Reset Conteo)
+      </button>
+    </div>
+
+    <div class="section">
+      <h3>Jugador Actual</h3>
+      <select id="playerSelect" style="width: 300px;">
+        <option value="">Seleccionar jugador...</option>
+      </select>
+      <button onclick="updatePlayer()" class="btn-primary">Mostrar Jugador</button>
+    </div>
+
+    <div class="section">
+      <h3>Control del Juego</h3>
+      <button onclick="nextInning()" class="btn-warning">Siguiente Inning</button>
+      <button onclick="reset()" class="btn-danger">RESET COMPLETO</button>
+    </div>
+  </div>
+
+  <script>
+    let marcadorWindow;
+    let inning = 1;
+    let half = "Alta";
+    let outs = 0;
+    let totalScores = { 
+      visitante: [0,0,0,0,0,0,0,0,0], 
+      local: [0,0,0,0,0,0,0,0,0] 
+    };
+    let gameOver = false;
+    let winner = null;
+    let actionHistory = [];
+    let maxHistorySize = 50;
+
+    // Lista de jugadores por defecto
+    let jugadores = [
+      // Equipo Visitante
+      { equipo: "VISITANTE", numero: "1", nombre: "Juan Pérez" },
+      { equipo: "VISITANTE", numero: "2", nombre: "Carlos López" },
+      { equipo: "VISITANTE", numero: "3", nombre: "Miguel Rodríguez" },
+      { equipo: "VISITANTE", numero: "4", nombre: "Luis García" },
+      { equipo: "VISITANTE", numero: "5", nombre: "Pedro Martínez" },
+      { equipo: "VISITANTE", numero: "6", nombre: "José Hernández" },
+      { equipo: "VISITANTE", numero: "7", nombre: "Antonio Silva" },
+      { equipo: "VISITANTE", numero: "8", nombre: "Francisco Torres" },
+      { equipo: "VISITANTE", numero: "9", nombre: "Roberto Díaz" },
+      
+      // Equipo Local
+      { equipo: "LOCAL", numero: "1", nombre: "David González" },
+      { equipo: "LOCAL", numero: "2", nombre: "Alejandro Ruiz" },
+      { equipo: "LOCAL", numero: "3", nombre: "Fernando Castro" },
+      { equipo: "LOCAL", numero: "4", nombre: "Ricardo Morales" },
+      { equipo: "LOCAL", numero: "5", nombre: "Sergio Vargas" },
+      { equipo: "LOCAL", numero: "6", nombre: "Manuel Jiménez" },
+      { equipo: "LOCAL", numero: "7", nombre: "Raúl Mendoza" },
+      { equipo: "LOCAL", numero: "8", nombre: "Andrés Flores" },
+      { equipo: "LOCAL", numero: "9", nombre: "Gabriel Ramos" }
+    ];
+
+    // Inicializar la aplicación
+    window.onload = function() {
+      updatePlayerSelect();
+      updatePlayersCount();
+      updateGameStatus();
+      updateHistoryDisplay();
+    };
+
+    // Sistema de Historial
+    function saveState(action) {
+      const state = {
+        timestamp: new Date(),
+        action: action,
+        gameState: {
+          inning: inning,
+          half: half,
+          balls: parseInt(document.getElementById("balls").textContent),
+          strikes: parseInt(document.getElementById("strikes").textContent),
+          outs: parseInt(document.getElementById("outs").textContent),
+          totalScores: JSON.parse(JSON.stringify(totalScores)),
+          gameOver: gameOver,
+          winner: winner,
+          teamA: document.getElementById("teamA").value,
+          teamB: document.getElementById("teamB").value,
+          currentPlayer: document.getElementById("playerSelect").value
+        }
+      };
+
+      actionHistory.push(state);
+      
+      // Limitar el tamaño del historial
+      if (actionHistory.length > maxHistorySize) {
+        actionHistory.shift();
+      }
+      
+      updateHistoryDisplay();
+    }
+
+    function undoLastAction() {
+      if (actionHistory.length === 0) return;
+      
+      // Remover el último estado (el actual)
+      actionHistory.pop();
+      
+      if (actionHistory.length === 0) {
+        // Si no hay más estados, resetear a inicial
+        reset();
+        return;
+      }
+      
+      // Restaurar el estado anterior
+      const previousState = actionHistory[actionHistory.length - 1].gameState;
+      
+      inning = previousState.inning;
+      half = previousState.half;
+      totalScores = JSON.parse(JSON.stringify(previousState.totalScores));
+      gameOver = previousState.gameOver;
+      winner = previousState.winner;
+      
+      // Actualizar UI
+      document.getElementById("inning").textContent = inning;
+      document.getElementById("half").textContent = half;
+      document.getElementById("balls").textContent = previousState.balls;
+      document.getElementById("strikes").textContent = previousState.strikes;
+      document.getElementById("outs").textContent = previousState.outs;
+      document.getElementById("teamA").value = previousState.teamA;
+      document.getElementById("teamB").value = previousState.teamB;
+      document.getElementById("playerSelect").value = previousState.currentPlayer;
+      
+      updatePlayerSelect();
+      updateGameStatus();
+      updateHistoryDisplay();
+      sendUpdate();
+      
+      console.log("🔄 Acción deshecha");
+    }
+
+    function clearHistory() {
+      if (confirm("¿Estás seguro de que quieres limpiar todo el historial?")) {
+        actionHistory = [];
+        updateHistoryDisplay();
+      }
+    }
+
+    function updateHistoryDisplay() {
+      const historyList = document.getElementById("historyList");
+      const historyCount = document.getElementById("historyCount");
+      const undoBtn = document.getElementById("undoBtn");
+      
+      historyCount.textContent = `${actionHistory.length} cambios registrados`;
+      undoBtn.disabled = actionHistory.length === 0;
+      
+      if (actionHistory.length === 0) {
+        historyList.innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">No hay cambios registrados aún</div>';
+        return;
+      }
+      
+      // Mostrar los últimos 10 cambios
+      const recentHistory = actionHistory.slice(-10).reverse();
+      
+      historyList.innerHTML = recentHistory.map(item => {
+        const time = item.timestamp.toLocaleTimeString();
+        return `
+          <div class="history-item">
+            <div><strong>${item.action}</strong></div>
+            <div class="history-time">${time} - Inning ${item.gameState.inning} (${item.gameState.half})</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadPlayersFromFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Por favor selecciona un archivo');
+        return;
+      }
+
+      const fileName = file.name.toLowerCase();
+      
+      if (fileName.endsWith('.csv')) {
+        loadCSV(file);
+      } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        loadExcel(file);
+      } else {
+        alert('Formato de archivo no soportado. Use CSV o Excel.');
+      }
+    }
+
+    function loadCSV(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        parsePlayersData(text);
+      };
+      reader.readAsText(file);
+    }
+
+    function loadExcel(file) {
+      alert('Para archivos Excel, por favor conviértelos a CSV primero.\nFormato: Equipo,Numero,Nombre');
+    }
+
+    function parsePlayersData(text) {
+      try {
+        const lines = text.trim().split('\n');
+        const newJugadores = [];
+        
+        const startIndex = lines[0].toLowerCase().includes('equipo') ? 1 : 0;
+        
+        for (let i = startIndex; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line) {
+            const [equipo, numero, nombre] = line.split(',').map(item => item.trim());
+            if (equipo && numero && nombre) {
+              newJugadores.push({ equipo: equipo.toUpperCase(), numero, nombre });
+            }
+          }
+        }
+        
+        if (newJugadores.length > 0) {
+          jugadores = newJugadores;
+          updatePlayerSelect();
+          updatePlayersCount();
+          saveState('Jugadores cargados desde archivo');
+          alert(`Se cargaron ${newJugadores.length} jugadores correctamente`);
+        } else {
+          alert('No se pudieron cargar los jugadores. Verifica el formato del archivo.');
+        }
+      } catch (error) {
+        alert('Error al procesar el archivo: ' + error.message);
+      }
+    }
+
+    function updatePlayersCount() {
+      document.getElementById('playersCount').textContent = jugadores.length;
+    }
+
+    function openMarcador() {
+      marcadorWindow = window.open("marcador.html", "marcador", "width=1400,height=800");
+      setTimeout(() => {
+        if (marcadorWindow) {
+          sendUpdate();
+        }
+      }, 1000);
+    }
+
+    function updateTeams() {
+      if (!marcadorWindow || marcadorWindow.closed) {
+        openMarcador();
+      } else {
+        saveState('Nombres de equipos actualizados');
+        sendUpdate();
+      }
+    }
+
+    function checkGameEnd() {
+      console.log(`=== VERIFICANDO FINAL DEL JUEGO ===`);
+      console.log(`Inning: ${inning}, Half: ${half}`);
+      
+      // Solo verificar al final del inning 9 o superior
+      if (inning < 9) {
+        console.log(`Inning ${inning} < 9, juego continúa`);
+        return false;
+      }
+      
+      // Solo verificar después de completar la baja del inning
+      if (half === "Alta") {
+        console.log(`Todavía en la Alta del inning ${inning}, esperando la Baja`);
+        return false;
+      }
+
+      // Calcular totales
+      const visitanteTotal = totalScores.visitante.reduce((sum, score) => sum + score, 0);
+      const localTotal = totalScores.local.reduce((sum, score) => sum + score, 0);
+
+      console.log(`TOTALES - Visitante: ${visitanteTotal}, Local: ${localTotal}`);
+      
+      // Verificar si hay ganador
+      if (visitanteTotal !== localTotal) {
+        // HAY GANADOR
+        gameOver = true;
+        winner = visitanteTotal > localTotal ? 
+          document.getElementById("teamA").value : 
+          document.getElementById("teamB").value;
+        console.log(`🏆 ¡JUEGO TERMINADO! Ganador: ${winner}`);
+        saveState(`🏆 JUEGO TERMINADO - Ganador: ${winner}`);
+        return true;
+      } else {
+        // EMPATE - Agregar inning extra
+        console.log(`⚡ EMPATE en inning ${inning}, agregando inning extra`);
+        totalScores.visitante.push(0);
+        totalScores.local.push(0);
+        saveState(`⚡ Inning extra agregado (${inning + 1}) por empate`);
+        return false;
+      }
+    }
+
+    function updateGameStatus() {
+      const statusDiv = document.getElementById('gameStatus');
+      
+      if (gameOver && winner) {
+        statusDiv.textContent = `🏆 JUEGO TERMINADO - GANADOR: ${winner.toUpperCase()} 🏆`;
+        statusDiv.className = 'game-status game-over';
+      } else if (inning > 9) {
+        statusDiv.textContent = `⚡ INNINGS EXTRAS - Inning ${inning} ⚡`;
+        statusDiv.className = 'game-status extra-innings';
+      } else {
+        statusDiv.textContent = 'Juego en Progreso - Inning Regular';
+        statusDiv.className = 'game-status';
+      }
+    }
+
+    function adjust(field, delta) {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      let el = document.getElementById(field);
+      let val = parseInt(el.textContent) + delta;
+      if (val < 0) val = 0;
+      
+      // Límites específicos
+      if (field === "balls" && val > 4) val = 4;
+      if (field === "strikes" && val > 3) val = 3;
+      if (field === "outs" && val > 3) val = 3;
+      
+      el.textContent = val;
+
+      // NUEVO: Reset automático de balls y strikes cuando se agrega un out
+      if (field === "outs" && delta > 0 && val > 0) {
+        document.getElementById("balls").textContent = 0;
+        document.getElementById("strikes").textContent = 0;
+        saveState(`Out agregado (${val}/3) - Conteo reseteado`);
+      }
+
+      // Lógica especial para 3 outs
+      if (field === "outs" && val >= 3) {
+        saveState('3 outs completados - Cambio de inning');
+        nextInning();
+        return;
+      }
+
+      // Lógica para 4 balls (base por bolas)
+      if (field === "balls" && val >= 4) {
+        document.getElementById("balls").textContent = 0;
+        document.getElementById("strikes").textContent = 0;
+        saveState('Base por bolas (4 balls) - Conteo reseteado');
+      }
+
+      // Lógica para 3 strikes (ponche)
+      if (field === "strikes" && val >= 3) {
+        document.getElementById("balls").textContent = 0;
+        document.getElementById("strikes").textContent = 0;
+        saveState('Ponche (3 strikes) - Conteo reseteado');
+        adjust("outs", 1);
+        return;
+      }
+
+      // Guardar cambios simples de conteo
+      if (field === "balls") saveState(`Balls: ${val}`);
+      if (field === "strikes") saveState(`Strikes: ${val}`);
+
+      sendUpdate();
+    }
+
+    function addRun() {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      // Agregar una carrera al equipo que está bateando
+      let currentTeam = (half === "Alta") ? "visitante" : "local";
+      let currentInningIndex = inning - 1;
+      
+      // Asegurar que el array tenga suficientes elementos para innings extras
+      while (totalScores[currentTeam].length <= currentInningIndex) {
+        totalScores[currentTeam].push(0);
+      }
+      
+      totalScores[currentTeam][currentInningIndex]++;
+      
+      console.log(`CARRERA AGREGADA - ${currentTeam} en inning ${inning}: ${totalScores[currentTeam][currentInningIndex]}`);
+      
+      saveState(`🏃 Carrera agregada - ${currentTeam.toUpperCase()} (Inning ${inning})`);
+      sendUpdate();
+    }
+
+    function homeRun() {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      // Reset del conteo de balls y strikes, agregar una carrera
+      document.getElementById("balls").textContent = 0;
+      document.getElementById("strikes").textContent = 0;
+      
+      addRun();
+      saveState('⚾ HOME RUN - Carrera + Conteo reseteado');
+    }
+
+    function hit() {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      // Solo reset del conteo de balls y strikes
+      document.getElementById("balls").textContent = 0;
+      document.getElementById("strikes").textContent = 0;
+      
+      saveState('🥎 HIT - Conteo reseteado');
+      sendUpdate();
+    }
+
+    function basePorBola() {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      // Solo reset del conteo de balls y strikes
+      document.getElementById("balls").textContent = 0;
+      document.getElementById("strikes").textContent = 0;
+      
+      saveState('🚶 Base por bola - Conteo reseteado');
+      sendUpdate();
+    }
+
+    function nextInning() {
+      if (gameOver) {
+        alert('El juego ha terminado. Use RESET para comenzar un nuevo juego.');
+        return;
+      }
+
+      console.log(`=== CAMBIANDO INNING ===`);
+      console.log(`Antes: Inning ${inning}, Half: ${half}`);
+
+      // Reset contadores
+      document.getElementById("balls").textContent = 0;
+      document.getElementById("strikes").textContent = 0;
+      document.getElementById("outs").textContent = 0;
+      
+      if (half === "Alta") {
+        // Cambiar a Baja del mismo inning
+        half = "Baja";
+        console.log(`Cambiando a Baja del inning ${inning}`);
+        saveState(`Cambio a Baja del inning ${inning}`);
+      } else {
+        // Estamos en "Baja", verificar si el juego termina ANTES de cambiar al siguiente inning
+        if (inning >= 9) {
+          console.log(`Completando inning ${inning}, verificando ganador...`);
+          if (checkGameEnd()) {
+            console.log(`Juego terminado, no se cambia al siguiente inning`);
+            updateGameStatus();
+            sendUpdate();
+            return; // NO cambiar al siguiente inning
+          }
+        }
+        
+        // Si llegamos aquí, no hay ganador, cambiar al siguiente inning
+        half = "Alta";
+        inning++;
+        console.log(`Cambiando a Alta del inning ${inning}`);
+        saveState(`Inicio del inning ${inning} (Alta)`);
+      }
+      
+      document.getElementById("half").textContent = half;
+      document.getElementById("inning").textContent = inning;
+      updatePlayerSelect();
+      updateGameStatus();
+      sendUpdate();
+    }
+
+    function updatePlayerSelect() {
+      let equipoActual = (half === "Alta") ? 
+        document.getElementById("teamA").value : 
+        document.getElementById("teamB").value;
+      
+      let equipoKey = (half === "Alta") ? "VISITANTE" : "LOCAL";
+      
+      let select = document.getElementById("playerSelect");
+      select.innerHTML = '<option value="">Seleccionar jugador...</option>';
+      
+      // Aplicar colores según el equipo
+      if (half === "Alta") {
+        select.className = "player-select-visitante";
+      } else {
+        select.className = "player-select-local";
+      }
+      
+      jugadores.filter(j => j.equipo === equipoKey).forEach(j => {
+        let opt = document.createElement("option");
+        opt.value = `#${j.numero} - ${j.nombre}`;
+        opt.textContent = `#${j.numero} - ${j.nombre}`;
+        
+        // Aplicar colores a las opciones
+        if (equipoKey === "VISITANTE") {
+          opt.className = "player-option-visitante";
+        } else {
+          opt.className = "player-option-local";
+        }
+        
+        select.appendChild(opt);
+      });
+    }
+
+    function updatePlayer() {
+      saveState('Jugador actualizado');
+      sendUpdate();
+    }
+
+    function sendUpdate() {
+      if (!marcadorWindow || marcadorWindow.closed) return;
+      
+      let data = {
+        type: "update",
+        inning: inning,
+        half: half,
+        balls: parseInt(document.getElementById("balls").textContent),
+        strikes: parseInt(document.getElementById("strikes").textContent),
+        outs: parseInt(document.getElementById("outs").textContent),
+        player: document.getElementById("playerSelect").value || "-",
+        teamA: document.getElementById("teamA").value,
+        teamB: document.getElementById("teamB").value,
+        scores: totalScores,
+        gameOver: gameOver,
+        winner: winner
+      };
+      
+      marcadorWindow.postMessage(data, "*");
+    }
+
+    function reset() {
+      if (confirm("¿Estás seguro de que quieres reiniciar completamente el juego?")) {
+        inning = 1;
+        half = "Alta";
+        gameOver = false;
+        winner = null;
+        document.getElementById("inning").textContent = inning;
+        document.getElementById("half").textContent = half;
+        ["balls","strikes","outs"].forEach(id => document.getElementById(id).textContent = 0);
+        
+        // Reset scores
+        totalScores = { 
+          visitante: [0,0,0,0,0,0,0,0,0], 
+          local: [0,0,0,0,0,0,0,0,0] 
+        };
+        
+        // Limpiar historial
+        actionHistory = [];
+        
+        updatePlayerSelect();
+        updateGameStatus();
+        updateHistoryDisplay();
+        saveState('🔄 RESET COMPLETO - Nuevo juego iniciado');
+        sendUpdate();
+      }
+    }
+  </script>
+</body>
+</html>

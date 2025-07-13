@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Marcador</title>
+  <style>
+    body { 
+      background: #000000; 
+      color: #ffffff; 
+      font-family: 'Arial Black', Arial, sans-serif; 
+      text-align: center; 
+      padding: 10px; 
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    h1 {
+      font-size: 1.8em;
+      margin: 5px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 3px solid #ffffff;
+      padding-bottom: 5px;
+      color: #ffffff;
+    }
+    
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0 20px 0;
+      height: 80px;
+    }
+    
+    .inning-display {
+      font-size: 1.8em;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: 3px solid #ffffff;
+      background: #000000;
+      color: #ffffff;
+      min-width: 250px;
+    }
+    
+    .count-display {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 15px;
+    }
+    
+    .count-item {
+      font-size: 1.98em;
+      font-weight: 900;
+      padding: 13px 18px;
+      border: 3px solid #ffffff;
+      background: #000000;
+      min-width: 100px;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .extra-innings {
+      color: #ff9800 !important;
+      border-color: #ff9800 !important;
+    }
+    
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    
+    table { 
+      border-collapse: collapse; 
+      margin: 0 auto; 
+      border: 4px solid #ffffff;
+      background: #000000;
+      font-size: 1.4em;
+      width: 95%;
+      max-width: 1600px;
+    }
+    
+    th, td { 
+      border: 2px solid #ffffff; 
+      padding: 8px 5px; 
+      font-weight: bold;
+      text-align: center;
+      color: #ffffff;
+      background: #000000;
+    }
+    
+    th {
+      background: #333333;
+      font-size: 1.1em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+    
+    .team-name {
+      background: #222222;
+      font-size: 1.0em;
+      min-width: 120px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffffff;
+    }
+    
+    .score-cell {
+      font-size: 2.16em;
+      min-width: 50px;
+      background: #000000;
+      color: #ffffff;
+      font-weight: 900;
+    }
+    
+    .total-column {
+      background: #444444;
+      font-size: 1.6em;
+      font-weight: 900;
+      color: #ffffff;
+      min-width: 80px;
+    }
+    
+    .bottom-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0px 0 10px 0;
+      height: 60px;
+    }
+    
+    .player-display {
+      font-size: 1.6em;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: 3px solid #ffffff;
+      background: #000000;
+      text-transform: uppercase;
+      color: #ffffff;
+      flex: 1;
+      margin: 0 20px;
+    }
+    
+    .current-inning {
+      color: #ff0000 !important;
+      background: #330000 !important;
+      border-color: #ff0000 !important;
+    }
+    
+    .winner-display {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3em;
+      font-weight: 900;
+      padding: 30px;
+      border: 8px solid #00ff00;
+      background: #003300;
+      color: #00ff00;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: blink 1s infinite;
+      z-index: 1000;
+      border-radius: 15px;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.7; }
+    }
+    
+    .extra-inning-header {
+      background: #ff9800 !important;
+      color: #000000 !important;
+    }
+
+    .innings-info {
+      font-size: 1.0em;
+      color: #ff9800;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+
+    /* Responsive adjustments for the specific resolution */
+    @media screen and (width: 1792px) and (height: 512px) {
+      body {
+        padding: 5px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+        margin: 3px 0;
+      }
+      
+      .top-section {
+        height: 70px;
+        margin: 5px 0;
+      }
+      
+      .main-content {
+        margin: 5px 0;
+      }
+      
+      .bottom-section {
+        height: 50px;
+        margin: 5px 0;
+      }
+      
+      table {
+        font-size: 1.3em;
+      }
+      
+      .score-cell {
+        font-size: 1.7em;
+      }
+    }
+
+    /* Para pantallas muy anchas */
+    @media screen and (min-width: 1600px) {
+      .count-display {
+        gap: 30px;
+      }
+      
+      .count-item {
+        min-width: 100px;
+        font-size: 1.7em;
+      }
+      
+      table {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>⚾ PARQUE DE BEISBOL "JOSE BRICEÑO" ⚾</h1>
+  
+  <div class="top-section">
+    <div class="inning-display" id="inningDisplay">
+      INNING: <span id="inning">1</span> - <span id="half">ALTA</span>
+    </div>
+    
+    <div class="count-display">
+      <div class="count-item">
+        BALLS<br><span id="balls">0</span>
+      </div>
+      <div class="count-item">
+        STRIKES<br><span id="strikes">0</span>
+      </div>
+      <div class="count-item">
+        OUTS<br><span id="outs">0</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <table id="marcador">
+      <thead>
+        <tr id="headerRow">
+          <th>EQUIPO</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+          <th>4</th>
+          <th>5</th>
+          <th>6</th>
+          <th>7</th>
+          <th>8</th>
+          <th>9</th>
+          <th class="total-column">TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th id="teamA" class="team-name">VISITANTE</th>
+          <td id="g1" class="score-cell">0</td>
+          <td id="g2" class="score-cell">0</td>
+          <td id="g3" class="score-cell">0</td>
+          <td id="g4" class="score-cell">0</td>
+          <td id="g5" class="score-cell">0</td>
+          <td id="g6" class="score-cell">0</td>
+          <td id="g7" class="score-cell">0</td>
+          <td id="g8" class="score-cell">0</td>
+          <td id="g9" class="score-cell">0</td>
+          <td id="totalA" class="total-column">0</td>
+        </tr>
+        <tr>
+          <th id="teamB" class="team-name">LOCAL</th>
+          <td id="h1" class="score-cell">0</td>
+          <td id="h2" class="score-cell">0</td>
+          <td id="h3" class="score-cell">0</td>
+          <td id="h4" class="score-cell">0</td>
+          <td id="h5" class="score-cell">0</td>
+          <td id="h6" class="score-cell">0</td>
+          <td id="h7" class="score-cell">0</td>
+          <td id="h8" class="score-cell">0</td>
+          <td id="h9" class="score-cell">0</td>
+          <td id="totalB" class="total-column">0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bottom-section">
+    <div class="player-display">
+      <span id="player">JUGADOR: -</span>
+    </div>
+  </div>
+
+  <!-- Mensaje de ganador -->
+  <div id="winnerMessage" class="winner-display" style="display: none;">
+    🏆 GANADOR: <span id="winnerName"></span> 🏆
+  </div>
+
+  <script>
+    let allScores = {
+      visitante: [],
+      local: []
+    };
+    let displayStartInning = 1; // Primer inning mostrado en pantalla
+    const MAX_VISIBLE_INNINGS = 9; // Máximo de innings visibles
+
+    function updateScoreboard(data) {
+      // Actualizar contadores
+      document.getElementById("balls").textContent = data.balls;
+      document.getElementById("strikes").textContent = data.strikes;
+      document.getElementById("outs").textContent = data.outs;
+      
+      // Actualizar inning
+      document.getElementById("inning").textContent = data.inning;
+      document.getElementById("half").textContent = data.half.toUpperCase();
+      
+      // Actualizar display de inning para innings extras
+      const inningDisplay = document.getElementById("inningDisplay");
+      if (data.inning > 9) {
+        inningDisplay.classList.add("extra-innings");
+      } else {
+        inningDisplay.classList.remove("extra-innings");
+      }
+      
+      // Actualizar jugador
+      document.getElementById("player").textContent = "JUGADOR: " + (data.player || "-");
+      
+      // Actualizar nombres de equipos
+      if (data.teamA) {
+        document.getElementById("teamA").textContent = data.teamA.toUpperCase();
+      }
+      if (data.teamB) {
+        document.getElementById("teamB").textContent = data.teamB.toUpperCase();
+      }
+      
+      // Mostrar mensaje de ganador
+      const winnerMessage = document.getElementById("winnerMessage");
+      const winnerName = document.getElementById("winnerName");
+      
+      if (data.gameOver && data.winner) {
+        winnerName.textContent = data.winner.toUpperCase();
+        winnerMessage.style.display = "block";
+      } else {
+        winnerMessage.style.display = "none";
+      }
+      
+      // Actualizar scores si están disponibles
+      if (data.scores) {
+        // Guardar todos los scores
+        allScores.visitante = [...data.scores.visitante];
+        allScores.local = [...data.scores.local];
+        
+        // Determinar qué innings mostrar
+        const maxInnings = Math.max(allScores.visitante.length, allScores.local.length, data.inning);
+        
+        if (maxInnings > MAX_VISIBLE_INNINGS) {
+          // Si hay más de 9 innings, mostrar los últimos 9
+          displayStartInning = maxInnings - MAX_VISIBLE_INNINGS + 1;
+        } else {
+          displayStartInning = 1;
+        }
+        
+        // Actualizar headers de la tabla
+        updateTableHeaders();
+        
+        // Actualizar scores visibles
+        updateVisibleScores(data);
+        
+        // Calcular y mostrar totales
+        let totalA = allScores.visitante.reduce((sum, score) => sum + (score || 0), 0);
+        let totalB = allScores.local.reduce((sum, score) => sum + (score || 0), 0);
+        
+        document.getElementById("totalA").textContent = totalA;
+        document.getElementById("totalB").textContent = totalB;
+      } else {
+        // Si no hay scores pero estamos en innings extras, actualizar la visualización
+        if (data.inning > 9) {
+          const maxInnings = data.inning;
+          
+          if (maxInnings > MAX_VISIBLE_INNINGS) {
+            displayStartInning = maxInnings - MAX_VISIBLE_INNINGS + 1;
+          }
+          
+          updateTableHeaders();
+          updateVisibleScores(data);
+        }
+      }
+    }
+
+    function updateTableHeaders() {
+      const headerRow = document.getElementById("headerRow");
+      const headers = headerRow.querySelectorAll("th:not(:first-child):not(:last-child)");
+      
+      // Actualizar números de innings en headers
+      headers.forEach((header, index) => {
+        const inningNumber = displayStartInning + index;
+        header.textContent = inningNumber;
+        
+        // Aplicar estilo para innings extras
+        if (inningNumber > 9) {
+          header.classList.add("extra-inning-header");
+        } else {
+          header.classList.remove("extra-inning-header");
+        }
+      });
+    }
+
+    function updateVisibleScores(data) {
+      const guestRow = document.querySelector("tbody tr:first-child");
+      const homeRow = document.querySelector("tbody tr:last-child");
+      
+      const guestCells = guestRow.querySelectorAll("td:not(:last-child)");
+      const homeCells = homeRow.querySelectorAll("td:not(:last-child)");
+      
+      // Actualizar scores visibles
+      guestCells.forEach((cell, index) => {
+        const inningIndex = displayStartInning + index - 1;
+        const score = allScores.visitante[inningIndex] || 0;
+        cell.textContent = score;
+        
+        // Resaltar inning actual
+        const inningNumber = displayStartInning + index;
+        if (inningNumber === data.inning && data.half === "Alta") {
+          cell.classList.add("current-inning");
+        } else {
+          cell.classList.remove("current-inning");
+        }
+      });
+      
+      homeCells.forEach((cell, index) => {
+        const inningIndex = displayStartInning + index - 1;
+        const score = allScores.local[inningIndex] || 0;
+        cell.textContent = score;
+        
+        // Resaltar inning actual
+        const inningNumber = displayStartInning + index;
+        if (inningNumber === data.inning && data.half === "Baja") {
+          cell.classList.add("current-inning");
+        } else {
+          cell.classList.remove("current-inning");
+        }
+      });
+    }
+
+    window.addEventListener("message", function(e) {
+      let data = e.data;
+      if (data.type !== "update") return;
+      updateScoreboard(data);
+    });
+    
+    // Mensaje de bienvenida
+    console.log("Marcador de Baseball cargado. Esperando datos del panel de control...");
+  </script>
+</body>
+</html>
